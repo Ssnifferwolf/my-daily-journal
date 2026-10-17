@@ -1,44 +1,116 @@
 # My Daily Journal
-Local-first journal: Vite + TypeScript, no framework. Data lives in IndexedDB in your browser.
+
+A local-first journal built with Vite and TypeScript. Your data is stored in IndexedDB in your browser.
 
 ## Structure
-- `index.html` – page markup
-- `src/style.css` – all styles (light/dark, responsive)
-- `src/main.ts` – app logic (storage, repository, views, actions)
-- `supabase/schema.sql` – cloud table + Row Level Security (not connected yet)
-- `.cursor/rules/journal.mdc` – project rules for Cursor
 
-## Run
-```
+- `index.html` - Page markup
+- `src/style.css` - Styles, including light and dark themes and responsive layouts
+- `src/main.ts` - Application logic, storage, repository, views, and actions
+- `supabase/schema.sql` - Cloud database table and Row Level Security configuration
+- `.cursor/rules/journal.mdc` - Project rules for Cursor
+
+## Getting Started
+
+Install dependencies:
+
+```bash
 npm install
-npm run dev        # http://localhost:5173
-npm run build      # outputs dist/
 ```
 
-## Status
-Implemented: dashboard, journal, notes, calendar, tasks (with time), habits, goals, reflections, rotating quotes, themes, JSON/MD/TXT export, validated import.
-Accounts: email sign-up/sign-in and sync through Supabase (`src/cloud.ts`). Written but NOT yet tested against a real Supabase project. Not implemented: account deletion (needs a server-side function), server-side AI endpoint. Local storage is not encrypted.
+Start the development server:
 
-## Supabase setup (enables login, registration and sync)
-1. Create a project at supabase.com.
-2. SQL Editor: paste and run `supabase/schema.sql` (creates the table, version counter and Row Level Security).
-3. Authentication -> Providers: keep Email enabled. Authentication -> URL Configuration: set Site URL to your app address and add `http://localhost:5173` and your GitHub Pages URL as redirect URLs.
-4. Project Settings -> API: copy the Project URL and the publishable (anon) key into `.env` (see `.env.example`). Never use the service-role key here.
-5. `npm run dev`, open Account, create an account (confirm the email if confirmation is on) and sign in.
-6. For GitHub Pages: repo Settings -> Secrets and variables -> Actions, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+```bash
+npm run dev
+```
 
-### Google sign-in (optional, in addition to email)
-1. Google Cloud Console -> APIs & Services -> OAuth consent screen: set up the app (External), add your email as a test user while testing.
-2. Credentials -> Create credentials -> OAuth client ID -> Web application. Authorized redirect URI: `https://YOUR-PROJECT-REF.supabase.co/auth/v1/callback` (shown in Supabase when you open the Google provider).
-3. Supabase -> Authentication -> Providers -> Google: enable it and paste the Client ID and Client Secret. The secret goes only in the Supabase dashboard, never in this app or `.env`.
-4. Supabase -> Authentication -> URL Configuration: Site URL = your app address; add `http://localhost:5173` and your GitHub Pages URL to Redirect URLs.
-5. In the app: Account -> Continue with Google.
+Open the local URL shown in your terminal, usually `http://localhost:5173`.
 
-Sync rules: pull first, then push. Edits are only pushed if the cloud copy is the version this device last saw. If two devices edit the same note, both versions are kept (a "conflict copy" note); for tasks, habits and goals the newer edit wins. Deletes are tombstones. A device that holds another account's data refuses to sync until that data is exported and cleared. Sync runs after edits, every minute, and when the browser comes back online.
+Build the project:
 
-## Next steps
-1. Split `main.ts` into `db.ts`, `repo.ts`, `views/*.ts`, `actions.ts`, `sync.ts`.
-2. Test sync with two devices; add account deletion (Edge Function) and the optional AI endpoint.
+```bash
+npm run build
+```
 
-## Deploy
-Push to `main`; set Settings -> Pages -> Source: GitHub Actions. Journal data stays in each visitor's browser, never in the repo.
+The production build is generated in the `dist/` directory.
+
+## Features and Status
+
+Implemented features include:
+
+- Dashboard
+- Journal entries and notes
+- Calendar
+- Tasks with scheduled times
+- Habits and goals
+- Reflections and rotating quotes
+- Light and dark themes
+- JSON, Markdown, and TXT export
+- Validated data import
+
+### Accounts and Cloud Sync
+
+Email authentication and synchronization are implemented in `src/cloud.ts` but have not yet been tested against a live Supabase project.
+
+Not yet implemented:
+
+- Account deletion through a server-side function
+- Server-side AI endpoint
+
+**Privacy note:** Local journal data is not encrypted by the application.
+
+## Supabase Setup
+
+Supabase enables account registration, sign-in, and cloud synchronization.
+
+1. Create a project at [Supabase](https://supabase.com/).
+2. Open the SQL Editor and run the contents of `supabase/schema.sql`.
+3. Under Authentication, enable email authentication.
+4. Configure the Site URL and allowed redirect URLs under Authentication URL Configuration. Include `http://localhost:5173` for local development.
+5. Open Project Settings and find your project URL and publishable key.
+6. Add these values to your local `.env` file using the variable names shown in `.env.example`.
+7. Run `npm run dev`, open the Account section, and test registration and sign-in.
+
+Never expose a Supabase service-role key in frontend code or commit secrets to GitHub.
+
+### Google Sign-In (Optional)
+
+1. In [Google Cloud Console](https://console.cloud.google.com/), configure the OAuth consent screen.
+2. Create an OAuth client ID for a web application.
+3. Use the callback URL shown in your Supabase Google provider settings. It will resemble `https://YOUR-PROJECT-REF.supabase.co/auth/v1/callback`.
+4. Enable Google under Supabase Authentication Providers and enter the required OAuth credentials.
+5. Add your local development URL and deployed application URL to Supabase's allowed redirect URLs.
+6. Test Google sign-in through the Account section.
+
+Keep the Google client secret in the appropriate server-side or provider configuration. Never put it in frontend code.
+
+## Synchronization Rules
+
+- Pull cloud changes before pushing local changes.
+- Local edits are pushed only when the cloud version matches the version last seen by the device.
+- If two devices edit the same note, both versions are retained as separate conflict-copy notes.
+- For tasks, habits, and goals, the newer edit wins.
+- Deletions are represented by tombstones.
+- A device containing another account's data refuses to synchronize until that data has been exported and cleared.
+- Synchronization runs after edits, periodically, and when the browser comes back online.
+
+Test these behaviours with a real Supabase project before relying on cloud synchronization.
+
+## Deployment
+
+To deploy with GitHub Pages:
+
+1. Push your project to the `main` branch.
+2. Configure GitHub Pages to use GitHub Actions under repository Settings → Pages.
+3. Configure the required repository secrets or variables for the Supabase project URL and publishable key.
+4. Ensure the deployment workflow builds the project and publishes the `dist/` directory correctly.
+
+Journal data stored in visitors' browsers is not stored in the Git repository. Cloud synchronization, if configured, stores data in Supabase.
+
+## Next Steps
+
+- Split `src/main.ts` into smaller modules such as `db.ts`, `repo.ts`, `views/`, `actions.ts`, and `sync.ts`.
+- Test synchronization across two devices.
+- Implement account deletion using a server-side function.
+- Add an optional server-side AI endpoint.
+- Review privacy and security before production deployment.
