@@ -8,7 +8,6 @@ A local-first journal built with Vite and TypeScript. Your data is stored in Ind
 - `src/style.css` - Styles, including light and dark themes and responsive layouts
 - `src/main.ts` - Application logic, storage, repository, views, and actions
 - `supabase/schema.sql` - Cloud database table and Row Level Security configuration
-- `.cursor/rules/journal.mdc` - Project rules for Cursor
 
 ## Getting Started
 
