@@ -98,7 +98,23 @@ function monthGrid(sel: string) {
 }
 // ---------- tasks / habits / goals ----------
 const trow = (t: Task) => `<div class="row2"><input type="checkbox" data-a="tdone" data-i="${t.id}" ${t.done ? 'checked' : ''} aria-label="Done: ${esc(t.title)}"><div class="g"><b class="${t.done ? 'dn' : ''}">${esc(t.title)}</b> ${t.demo ? '<span class="demo">sample</span>' : ''}<small style="display:block">${t.due || 'no date'}${t.time ? ' at ' + t.time : ''} · ${t.prio}${t.cat ? ' · ' + esc(t.cat) : ''}${t.desc ? ' · ' + esc(t.desc) : ''}</small></div><button type="button" data-a="ttop" data-i="${t.id}" title="Top-3 priority for today" aria-label="Toggle top priority">${t.top == today() ? '★' : '☆'}</button><button type="button" data-a="tedit" data-i="${t.id}">Edit</button><button type="button" data-a="tfwd" data-i="${t.id}" title="Carry forward" aria-label="Carry forward">→</button><button type="button" data-a="tdel" data-i="${t.id}" class="dg" aria-label="Delete task">✕</button></div>`;
-const QD = ['Small steps every day add up to a different life.', 'My future is my responsibility.', 'Consistency beats intensity.', 'Progress, not perfection.', 'Do the next right thing.'];
+const QD = [
+  'Small steps every day add up to a different life.',
+  'My future is my responsibility.',
+  'Consistency beats intensity.',
+  'Progress, not perfection.',
+  'Do the next right thing.',
+  'Start where you are. Use what you have. Do what you can.',
+  'A little progress each day adds up to big results.',
+  'Focus on what you can control today.',
+  'Your habits shape the life you live.',
+  'Make room for the work that matters most.',
+  'Done is better than waiting for perfect.',
+  'Keep going; future you will be grateful.',
+  'One focused hour can change the direction of a day.',
+  'You do not have to do everything at once.',
+  'Choose progress, then choose it again tomorrow.',
+];
 const qs = () => { const s = prefs(); if (!Array.isArray(s.quotes) || !s.quotes.length) s.quotes = [...new Set([s.quote, ...QD].filter(Boolean))]; return s.quotes; };
 const qcur = () => { const a = qs(); return a[((Math.floor(Date.now() / 1800000) + (prefs().qoff || 0)) % a.length + a.length) % a.length]; };
 const trowD = (t: Task) => `<div class="row2" style="align-items:flex-start"><input type="checkbox" data-a="tdone" data-i="${t.id}" ${t.done ? 'checked' : ''} aria-label="Done: ${esc(t.title)}" style="margin-top:5px"><div class="g"><div class="${t.done ? 'dn' : ''}" style="font-weight:500;overflow-wrap:anywhere">${esc(t.title)} ${t.demo ? '<span class="demo">sample</span>' : ''}</div><div class="mu" style="font-size:13px">${t.due || 'no date'}${t.time ? ' at ' + t.time : ''} · ${t.prio}${t.cat ? ' · ' + esc(t.cat) : ''}</div></div><button type="button" data-a="ttop" data-i="${t.id}" aria-label="Toggle top priority">${t.top == today() ? '★' : '☆'}</button></div>`;
@@ -120,7 +136,7 @@ const V: Record<string, () => string> = {
 <div class="card"><h3>Active goals</h3>${L('goal').map(g => { const nx = g.ms.find(m => !m.done); return `<div style="margin-bottom:12px"><b>${esc(g.title)}</b> <small>${Math.round(gp(g))}%${g.due ? ' · by ' + g.due : ''}</small>${bar(gp(g))}<small>${nx ? 'Next: ' + esc(nx.t) : 'No open milestones'}</small></div>`; }).join('') || '<p class="mu">No goals yet.</p>'}</div>
 <div class="card"><h3>Recent entries</h3>${L('note').filter(n => !n.trash && !n.arch).sort((a, b) => b.updated.localeCompare(a.updated)).slice(0, 5).map(n => `<div class="item" data-a="open" data-i="${n.id}" tabindex="0"><b>${esc(n.title || 'Untitled')}</b><small>${n.date} · ${esc(txt(n.html).slice(0, 60))}</small></div>`).join('') || '<p class="mu">No entries yet.</p>'}</div>
 <div class="card"><h3>Calendar</h3>${monthGrid(S.jd)}</div></div>
-<div class="card"><div class="quote" id="qt">“${esc(qcur())}”</div><div class="row" style="justify-content:center"><button type="button" data-a="qnext">Next quote</button><button type="button" data-a="quote">Customize quotes (${qs().length})</button></div><p class="mu" style="text-align:center;margin:8px 0 0;font-size:13px">Changes automatically every 30 minutes.</p></div>`;
+<div class="card"><div class="quote" id="qt">“${esc(qcur())}”</div><div class="row" style="justify-content:center"><button type="button" data-a="qnext">Next quote</button><button type="button" data-a="quote">Customize quotes (${qs().length})</button></div><p class="mu" style="text-align:center;margin:8px 0 0;font-size:13px">Changes automatically every 30 minutes.</p><p class="mu" style="text-align:center;margin:4px 0 0;font-size:13px">© 2026 My Daily Journal by Feysal Haji. All rights reserved.</p></div>`;
   },
   jour() { let n = L('note').find(n => n.kind == 'j' && n.date == S.jd && !n.trash); S.cur = n ? n.id : null; return `<h2>Daily Journal</h2><div class="row" style="margin:8px 0"><button type="button" data-a="jd" data-i="-1" aria-label="Previous day">‹</button><input type="date" id="jdi" value="${S.jd}" style="width:auto" aria-label="Journal date"><button type="button" data-a="jd" data-i="1" aria-label="Next day">›</button><b>${fd(S.jd)}</b></div>${n ? ed(n) : `<div class="card"><p class="mu">No entry for this date.</p><button type="button" class="pri" data-a="jnew">Start entry</button></div>`}`; },
   notes() { return `<h2>All Notes</h2><div class="row" style="margin:8px 0"><input id="sq" class="g" placeholder="Search title and content" value="${esc(S.q)}" aria-label="Search notes"><button type="button" class="pri" data-a="nn">+ New</button></div>
