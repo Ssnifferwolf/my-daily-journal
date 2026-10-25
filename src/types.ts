@@ -42,6 +42,9 @@ export interface Task extends Rec {
 export interface Habit extends Rec {
   type: 'habit';
   name: string;
+  startTime: string;
+  endTime: string;
+  time?: string; // Legacy single-time habits remain compatible.
   log: Record<string, string>;
 }
 
