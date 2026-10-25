@@ -72,17 +72,6 @@ Supabase enables account registration, sign-in, and cloud synchronization.
 
 Never expose a Supabase service-role key in frontend code or commit secrets to GitHub.
 
-### Google Sign-In (Optional)
-
-1. In [Google Cloud Console](https://console.cloud.google.com/), configure the OAuth consent screen.
-2. Create an OAuth client ID for a web application.
-3. Use the callback URL shown in your Supabase Google provider settings. It will resemble `https://YOUR-PROJECT-REF.supabase.co/auth/v1/callback`.
-4. Enable Google under Supabase Authentication Providers and enter the required OAuth credentials.
-5. Add your local development URL and deployed application URL to Supabase's allowed redirect URLs.
-6. Test Google sign-in through the Account section.
-
-Keep the Google client secret in the appropriate server-side or provider configuration. Never put it in frontend code.
-
 ## Synchronization Rules
 
 - Pull cloud changes before pushing local changes.

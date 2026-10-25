@@ -24,7 +24,6 @@ export const getSession = async (): Promise<Session | null> => (sb ? (await sb.a
 export const onAuth = (cb: (s: Session | null) => void): void => { sb?.auth.onAuthStateChange((_e, s) => cb(s)); };
 export const signIn = (email: string, password: string) => need().auth.signInWithPassword({ email, password });
 export const signUp = (email: string, password: string) => need().auth.signUp({ email, password });
-export const signInGoogle = () => need().auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname } });
 export const signOut = () => need().auth.signOut();
 export const resetPassword = (email: string) =>
   need().auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
