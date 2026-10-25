@@ -1,0 +1,8 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Add these in Netlify → Site configuration → Environment variables
+# (Vite inlines them at build time; a new deploy is required after you set them)
+# VITE_SUPABASE_URL
+# VITE_SUPABASE_ANON_KEY

@@ -97,7 +97,19 @@ Test these behaviours with a real Supabase project before relying on cloud synch
 
 ## Deployment
 
-To deploy with GitHub Pages:
+`.env` is not uploaded to GitHub. Hosted builds only get login if you add the same two names as **build** environment variables, then trigger a new deploy.
+
+### Netlify (GitHub)
+
+1. Open the site in Netlify → **Site configuration** → **Environment variables**.
+2. Add:
+   - `VITE_SUPABASE_URL` = your project URL (`https://xxxx.supabase.co`)
+   - `VITE_SUPABASE_ANON_KEY` = the **publishable** / anon key (`sb_publishable_...` or `eyJ...`)
+3. Use those exact names. `NEXT_PUBLIC_...` names will not work in this app.
+4. **Deploys** → **Trigger deploy** → **Clear cache and deploy site**. Vite reads the variables only while building.
+5. In Supabase → **Authentication** → **URL Configuration**, set Site URL to your Netlify URL (`https://your-site.netlify.app`) and add it under Redirect URLs.
+
+### GitHub Pages
 
 1. Push your project to the `main` branch.
 2. Configure GitHub Pages to use GitHub Actions under repository Settings → Pages.
