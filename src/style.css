@@ -65,6 +65,17 @@ dialog{border:1px solid var(--bd);border-radius:14px;background:var(--sf);color:
 dialog label{display:block;margin:8px 0;font-size:13px;color:var(--mu)}
 dialog .row{justify-content:flex-end;margin-top:12px}
 pre{overflow:auto;background:var(--bg);padding:10px;border-radius:8px;font-size:12px}
+/* Keep the journal comfortable beside another app or in a narrow desktop window. */
+@media (min-width:801px) and (max-width:1100px){
+  .app{grid-template-columns:190px minmax(0,1fr)}
+  aside{padding:16px 10px}
+  aside h1{font-size:16px}
+  main{padding:20px}
+  .split{grid-template-columns:minmax(0,1fr)}
+  .grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .card{padding:14px}
+  #eb{min-height:240px}
+}
 @media(max-width:800px){.app{grid-template-columns:minmax(0,1fr)}
 aside{position:static;height:auto;border:0;padding:12px 14px 0;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 aside p{display:none}
@@ -80,6 +91,13 @@ main{padding:14px 14px 96px}
 input,select,textarea{font-size:16px}
 h2{font-size:22px}
 }
+@media(max-width:560px){
+  .card{padding:12px}
+  .row2{align-items:flex-start;flex-wrap:wrap}
+  .row2>.g{min-width:150px}
+  .row input[type=date][style],.row input[type=time][style],.row select[style]{flex:1 1 140px;width:auto!important}
+  .hd{align-items:flex-start}
+}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}
 .tile{text-align:left;padding:12px 14px;border-radius:14px;background:var(--sf)}
 .tile b{display:block;font:600 24px Georgia,serif}
@@ -88,4 +106,3 @@ h2{font-size:22px}
 .card h3{font-size:16px;margin-bottom:12px}
 small{font-size:13px}
 .hk{width:28px;height:28px;padding:0;flex:none}
-

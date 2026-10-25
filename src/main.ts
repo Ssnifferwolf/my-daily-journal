@@ -74,21 +74,21 @@ const bar = (p: number) => `<div class="bar" role="progressbar" aria-valuemin="0
 const nOf = (n: Note) => [n.title, txt(n.html)].join(' ').toLowerCase();
 function nlist() {
   let a = L('note').filter(n => S.scope == 'trash' ? n.trash : S.scope == 'arch' ? n.arch && !n.trash : !n.arch && !n.trash && (S.scope != 'fav' || n.fav));
-  if (S.q) a = a.filter(n => nOf(n).includes(S.q.toLowerCase())); if (S.tag) a = a.filter(n => n.tags.includes(S.tag) || n.cat == S.tag); if (S.df) a = a.filter(n => n.date == S.df);
+  if (S.q) a = a.filter(n => nOf(n).includes(S.q.toLowerCase())); if (S.tag) a = a.filter(n => n.tags.includes(S.tag) || n.cat == S.tag); if (S.df) a = a.filter(n => n.date == S.df || n.due == S.df);
   a.sort((x, y) => (y.pin ? 1 : 0) - (x.pin ? 1 : 0) || (S.sort == 'cre' ? y.created.localeCompare(x.created) : y.updated.localeCompare(x.updated)));
-  return a.map(n => `<div class="item ${n.id == S.cur ? 'on' : ''}" data-a="open" data-i="${n.id}" tabindex="0"><b>${n.pin ? '📌 ' : ''}${n.fav ? '★ ' : ''}${esc(n.title || 'Untitled')}</b> ${n.demo ? '<span class="demo">sample</span>' : ''}<small>${n.date} · ${esc(txt(n.html).slice(0, 70))}</small></div>`).join('') || '<p class="mu">Nothing here yet.</p>';
+  return a.map(n => `<div class="item ${n.id == S.cur ? 'on' : ''}" data-a="open" data-i="${n.id}" tabindex="0"><b>${n.pin ? '📌 ' : ''}${n.fav ? '★ ' : ''}${esc(n.title || 'Untitled')}</b> ${n.demo ? '<span class="demo">sample</span>' : ''}<small>${n.due ? `Due ${n.due} · ` : ''}${n.date} · ${esc(txt(n.html).slice(0, 70))}</small></div>`).join('') || '<p class="mu">Nothing here yet.</p>';
 }
 function ed(n?: Note) {
   if (!n) return '<div class="card mu">Select a note, or create a new one.</div>'; const t = n.trash;
   return `<div class="card"><div class="row"><input id="et" class="g" placeholder="Title" value="${esc(n.title)}" ${t ? 'disabled' : ''} aria-label="Title"><span class="pill" id="sv">Saved</span></div>
-<div class="row" style="margin:8px 0"><input type="date" id="edt" value="${n.date}" style="width:auto" aria-label="Note date"><input id="etg" class="g" placeholder="tags, comma separated" value="${esc(n.tags.join(', '))}" aria-label="Tags"><input id="ecat" placeholder="category" value="${esc(n.cat)}" style="width:130px" aria-label="Category"></div>
+<div class="row" style="margin:8px 0"><input type="date" id="edt" value="${n.date}" style="width:auto" aria-label="Note date"><label class="mu">Due date<input type="date" id="edue" value="${esc(n.due || '')}" style="width:auto" aria-label="Due date"></label><input id="etg" class="g" placeholder="tags, comma separated" value="${esc(n.tags.join(', '))}" aria-label="Tags"><input id="ecat" placeholder="category" value="${esc(n.cat)}" style="width:130px" aria-label="Category"></div>
 ${t ? '<div class="warn">In trash. <button type="button" data-a="restore">Restore</button> <button type="button" data-a="purge" class="dg">Delete forever</button></div>' : `<div class="row" role="toolbar" aria-label="Formatting"><button type="button" data-a="fmt" data-i="bold"><b>B</b></button><button type="button" data-a="fmt" data-i="italic"><i>I</i></button><button type="button" data-a="fmt" data-i="formatBlock">H</button><button type="button" data-a="fmt" data-i="insertUnorderedList">• List</button><button type="button" data-a="fmt" data-i="chk">☐ Check</button><button type="button" data-a="fmt" data-i="createLink">Link</button></div>`}
 <div id="eb" ${t ? '' : 'contenteditable="true"'} role="textbox" aria-multiline="true" aria-label="Note body">${n.html}</div>
 ${t ? '' : `<div class="row"><button type="button" data-a="pin">${n.pin ? 'Unpin' : 'Pin'}</button><button type="button" data-a="fav">${n.fav ? 'Unfavorite' : 'Favorite'}</button><button type="button" data-a="dup">Duplicate</button><button type="button" data-a="arch">${n.arch ? 'Unarchive' : 'Archive'}</button><button type="button" data-a="trash" class="dg">Move to trash</button></div>`}</div>`;
 }
-function flush() { clearTimeout(tm); if (!S.pend) return; const n = R.get(S.cur || '') as Note | undefined, t = $('#et') as HTMLInputElement | null; S.pend = false; if (!n || !t) return; const eb = $('#eb'); Object.assign(n, { title: t.value, html: eb ? eb.innerHTML : n.html, date: ($('#edt') as HTMLInputElement | null)?.value || n.date, tags: ($('#etg') as HTMLInputElement | null)?.value.split(',').map(s => s.trim()).filter(Boolean) || n.tags, cat: ($('#ecat') as HTMLInputElement | null)?.value.trim() || '' }); save(n); const s = $('#sv'); if (s) s.textContent = 'Saved ' + new Date().toLocaleTimeString(); const l = $('#nl'); if (l) l.innerHTML = nlist(); }
+function flush() { clearTimeout(tm); if (!S.pend) return; const n = R.get(S.cur || '') as Note | undefined, t = $('#et') as HTMLInputElement | null; S.pend = false; if (!n || !t) return; const eb = $('#eb'), due = ($('#edue') as HTMLInputElement | null); Object.assign(n, { title: t.value, html: eb ? eb.innerHTML : n.html, date: ($('#edt') as HTMLInputElement | null)?.value || n.date, ...(due ? { due: due.value } : {}), tags: ($('#etg') as HTMLInputElement | null)?.value.split(',').map(s => s.trim()).filter(Boolean) || n.tags, cat: ($('#ecat') as HTMLInputElement | null)?.value.trim() || '' }); save(n); const s = $('#sv'); if (s) s.textContent = 'Saved ' + new Date().toLocaleTimeString(); const l = $('#nl'); if (l) l.innerHTML = nlist(); }
 function dirty() { S.pend = true; const s = $('#sv'); if (s) s.textContent = 'Saving…'; clearTimeout(tm); tm = setTimeout(flush, 600); }
-const newNote = (o: Record<string, unknown> = {}) => mk('note', { title: '', html: '', date: today(), tags: [], cat: '', fav: false, pin: false, arch: false, trash: false, kind: 'note', ...o }) as Note;
+const newNote = (o: Record<string, unknown> = {}) => mk('note', { title: '', html: '', date: today(), due: '', tags: [], cat: '', fav: false, pin: false, arch: false, trash: false, kind: 'note', ...o }) as Note;
 // ---------- calendar ----------
 function monthGrid(sel: string) {
   const m = S.cm, y = m.getFullYear(), mo = m.getMonth(), ws = +prefs().ws, off = (new Date(y, mo, 1).getDay() - ws + 7) % 7, dim = new Date(y, mo + 1, 0).getDate(), has = new Set(L('note').filter(n => !n.trash).map(n => n.date)); let c = '';
@@ -238,7 +238,7 @@ document.addEventListener('change', e => {
 document.addEventListener('input', e => {
   const t = e.target as HTMLInputElement;
   if (t.id == 'sq') { S.q = t.value; const nl = $('#nl'); if (nl) nl.innerHTML = nlist(); return; }
-  if (t.closest('#eb') || ['et', 'edt', 'etg', 'ecat'].includes(t.id)) dirty();
+  if (t.closest('#eb') || ['et', 'edt', 'edue', 'etg', 'ecat'].includes(t.id)) dirty();
   if (t.dataset.q) {
     const k = t.dataset.q;
     let r = L('refl').find(r => r.kind == k && r.date == S.rd);

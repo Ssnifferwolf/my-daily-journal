@@ -16,6 +16,7 @@ export interface Note extends Rec {
   title: string;
   html: string;
   date: string;
+  due: string;
   tags: string[];
   cat: string;
   fav: boolean;
