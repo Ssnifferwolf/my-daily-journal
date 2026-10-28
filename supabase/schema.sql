@@ -25,4 +25,7 @@ alter table public.records enable row level security;
 create policy "own select" on public.records for select using (owner_id = auth.uid());
 create policy "own insert" on public.records for insert with check (owner_id = auth.uid());
 create policy "own update" on public.records for update using (owner_id = auth.uid()) with check (owner_id = auth.uid());
+-- SQL privileges are required in addition to RLS policies. RLS still limits
+-- each authenticated user to rows where owner_id = auth.uid().
+grant select, insert, update on public.records to authenticated;
 -- Intentionally no DELETE policy. Never put the service-role key in the frontend.

@@ -72,6 +72,14 @@ Supabase enables account registration, sign-in, and cloud synchronization.
 
 Never expose a Supabase service-role key in frontend code or commit secrets to GitHub.
 
+If an existing project reports `permission denied for table records`, run this in the Supabase SQL Editor:
+
+```sql
+grant select, insert, update on public.records to authenticated;
+```
+
+This grants table access to signed-in users; the Row Level Security policies above still restrict each user to their own rows.
+
 ## Synchronization Rules
 
 - Pull cloud changes before pushing local changes.
