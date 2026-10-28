@@ -301,9 +301,9 @@ async function doSync(_manual?: boolean) {
     if (!prefs().owner) { const demo = [...R.values()].filter(r => r.demo && !r.deleted && !r.base); if (demo.length && await sure('Remove the sample content before syncing to your account?')) demo.forEach(drop); prefs().owner = U.id; save(prefs()); }
     SY.state = 'syncing'; st();
     const r = await Cloud.sync(U.id, store);
-    SY = { state: r.errors ? 'error' : 'ok', msg: `${r.pushed} sent, ${r.pulled} received${r.conflicts ? `, ${r.conflicts} conflict(s) (look for "conflict copy" notes)` : ''}${r.errors ? `, ${r.errors} failed (will retry)` : ''}`, last: Cloud.lastSync(U.id) };
+    SY = { state: r.errors ? 'error' : 'ok', msg: `${r.pushed} sent, ${r.pulled} received${r.conflicts ? `, ${r.conflicts} conflict(s) (look for "conflict copy" notes)` : ''}${r.errors ? `, ${r.errors} failed (will retry): ${r.errorMessages[0] || 'unknown error'}` : ''}`, last: Cloud.lastSync(U.id) };
     if (r.pulled || r.conflicts) { theme(); render(); }
-  } catch (e) { SY = { state: 'error', msg: 'Sync failed: ' + (e instanceof Error ? e.message : e) + '. Your data is safe on this device; retrying.', last: SY.last }; }
+  } catch (e) { SY = { state: 'error', msg: 'Sync failed: ' + Cloud.errorMessage(e) + '. Your data is safe on this device; retrying.', last: SY.last }; }
   busy = false; st(); if (view == 'acct' || view == 'set') render();
   if (SY.state == 'error') { clearTimeout(stm); stm = setTimeout(() => { void doSync(); }, 30000); }
 }

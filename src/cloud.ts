@@ -35,6 +35,17 @@ const iso = (s: string): string => new Date(s).toISOString();
 const rowId = (r: Rec): string => (r.type === 'setting' ? (r.rid ??= crypto.randomUUID()) : r.id);
 const strip = (r: Rec): Record<string, unknown> => { const { dirty, base, rid, ...d } = r; void dirty; void base; void rid; return d; };
 
+export function errorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === 'object') {
+    const e = error as Record<string, unknown>;
+    const parts = [e.message, e.details, e.hint].filter((v): v is string => typeof v === 'string' && !!v.trim());
+    if (typeof e.code === 'string' && !parts.includes(e.code)) parts.unshift(`[${e.code}]`);
+    if (parts.length) return parts.join(' — ');
+  }
+  return typeof error === 'string' ? error : 'An unknown error occurred';
+}
+
 async function retry<T>(fn: () => Promise<T>, n = 3): Promise<T> {
   for (let i = 0; ; i++) {
     try { return await fn(); } catch (e) { if (i >= n - 1) throw e; await new Promise((r) => setTimeout(r, 500 * 2 ** i)); }
@@ -61,7 +72,7 @@ function pullOne(row: CloudRow, st: Store, res: SyncResult): void {
 }
 
 export async function sync(uid: string, st: Store): Promise<SyncResult> {
-  const c = need(), res: SyncResult = { pushed: 0, pulled: 0, conflicts: 0, errors: 0 };
+  const c = need(), res: SyncResult = { pushed: 0, pulled: 0, conflicts: 0, errors: 0, errorMessages: [] };
   let cur = Number(localStorage.getItem(CUR + uid) || 0);
   for (;;) {                                                     // 1. pull changes since the cursor
     const rows: CloudRow[] = await retry(async () => {
@@ -83,7 +94,7 @@ export async function sync(uid: string, st: Store): Promise<SyncResult> {
         if (q.error) { if (q.error.code === '23505') { res.conflicts++; continue; } throw q.error; }  // duplicate id
       }
       r.base = ts; r.dirty = r.updated !== ts; st.apply(r); res.pushed++;
-    } catch { res.errors++; }
+    } catch (error) { res.errors++; res.errorMessages.push(errorMessage(error)); }
   }
   localStorage.setItem(CUR + uid, String(cur));
   if (!res.errors) localStorage.setItem(LAST + uid, new Date().toISOString());

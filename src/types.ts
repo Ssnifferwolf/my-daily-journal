@@ -95,4 +95,5 @@ export interface SyncResult {
   pulled: number;
   conflicts: number;
   errors: number;
+  errorMessages: string[];
 }
